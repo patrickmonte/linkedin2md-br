@@ -163,6 +163,31 @@ def main() -> int:
             logger.error("Failed to generate PDF Resume.")
             return 1
 
+    # Step 5: Optional Career-Ops Package Generation
+    if getattr(args, "career_ops", None) is not None:
+        career_ops_dir = (
+            args.output / "career-ops"
+            if str(args.career_ops) == "__DEFAULT__"
+            else args.career_ops
+        )
+        if _paths_same(args.source, career_ops_dir):
+            logger.error("Career-ops output path must not overwrite the source archive")
+            return 1
+
+        try:
+            cop_files = converter.convert_career_ops(career_ops_dir, lang=args.lang)
+            if not args.quiet:
+                print(f"Created career-ops package in {career_ops_dir}/")
+                for cop_file in cop_files:
+                    try:
+                        rel_name = cop_file.relative_to(career_ops_dir)
+                    except ValueError:
+                        rel_name = cop_file.name
+                    print(f"  - {rel_name}")
+        except Exception as error:
+            logger.error("Failed to export career-ops package: %s", error)
+            return 1
+
     return 0
 
 
@@ -220,6 +245,18 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         type=Path,
         metavar="PATH",
         help="Write a private conversion diagnostics JSON report",
+    )
+    parser.add_argument(
+        "--career-ops",
+        nargs="?",
+        const=Path("__DEFAULT__"),
+        type=Path,
+        default=None,
+        metavar="DIR",
+        help=(
+            "Export master CV and config package for career-ops "
+            "(https://github.com/career-ops-hq/career-ops)"
+        ),
     )
     parser.add_argument(
         "-q",

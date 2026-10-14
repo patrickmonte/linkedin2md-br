@@ -389,8 +389,15 @@ def localize_date(value: str, lang: str) -> str:
     """
     if normalize_language(lang) != "pt" or not value:
         return value
-    match = _CANONICAL_DATE.fullmatch(value.strip())
+    trimmed = value.strip()
+    match = re.fullmatch(r"([A-Za-z]{3}) (\d{4})", trimmed)
     if match is None:
         return value
-    month = _PT_BR_MONTHS[ENGLISH_MONTHS.index(match.group(1))]
-    return f"{month} de {match.group(2)}"
+    month_name = match.group(1).capitalize()
+    if month_name in ENGLISH_MONTHS:
+        month = _PT_BR_MONTHS[ENGLISH_MONTHS.index(month_name)]
+        return f"{month} de {match.group(2)}"
+    month_lower = match.group(1).lower()
+    if month_lower in _PT_BR_MONTHS:
+        return f"{month_lower} de {match.group(2)}"
+    return value

@@ -55,6 +55,7 @@ linkedin2md Complete_LinkedInDataExport.zip
 linkedin2md export.zip -o ./my-profile
 linkedin2md export.zip --lang es
 linkedin2md export.zip --lang pt  # Portuguese (Brasil)
+linkedin2md export.zip --career-ops  # Export package for career-ops AI agent
 linkedin2md export.zip --pdf  # Generate beautiful PDF CV alongside Markdown files
 linkedin2md export.zip --report report.json --strict  # Save diagnostics and fail on omissions
 ```
@@ -68,6 +69,7 @@ Then drag the output folder into your favorite AI tool.
 | `source` | LinkedIn ZIP export file (required) | - |
 | `-o, --output` | Output directory | `linkedin_export` |
 | `--lang` | Output language (`en`, `es`, `pt`, or `pt-BR`) | `en` |
+| `--career-ops [DIR]` | Export master CV and config package for [career-ops](https://github.com/career-ops-hq/career-ops) | `None` |
 | `--pdf` | Generate an elegant A4 PDF resume from your profile | `False` |
 | `--strict` | Return non-zero when diagnostics report conversion problems | `False` |
 | `--report PATH` | Write a private JSON conversion diagnostics report | - |
@@ -182,6 +184,27 @@ With the `--pdf` flag, `linkedin2md` converts your parsed structured data into a
     pip install weasyprint markdown
     ```
     *(If not installed, `linkedin2md` will continue to generate your Markdown folder safely, omitting the PDF and providing setup instructions).*
+
+## 🎯 Export for Career-Ops
+
+With the `--career-ops` flag, `linkedin2md` exports your LinkedIn history directly into a package ready for [career-ops](https://github.com/career-ops-hq/career-ops) — the open-source AI job search agent:
+
+```bash
+# Export into ./career-ops directory
+linkedin2md export.zip --career-ops
+
+# Or specify a custom target directory
+linkedin2md export.zip --career-ops ./my-career-ops
+
+# Localized for Brazilian Portuguese
+linkedin2md export.zip --career-ops --lang pt
+```
+
+This generates:
+- `cv.md`: Master Curriculum Vitae in Markdown used by career-ops to evaluate job matches and tailor ATS resumes.
+- `config/profile.yml`: Candidate configuration with your contact details, target roles, superpowers, location policies, and language settings (`output: pt-BR` when `--lang pt` is used).
+- `data/applications.md`: Flat-file application tracker pre-populated with your past LinkedIn job applications.
+- `README.md`: Setup and quick-start instructions for initializing career-ops via `npx @santifer/career-ops init`.
 
 ## 🤖 Agentic Development ([N3RV](https://github.com/juanmanueldaza/n3rv) Framework)
 

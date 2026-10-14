@@ -110,11 +110,27 @@ class LinkedInToMarkdownConverter:
         self._parsers = parser_registry
         self._formatters = formatter_registry
         self._writer = writer
+        self.last_parsed_data: dict[str, Any] | None = None
 
     def convert(self, lang: str = "en") -> list[Path]:
         """Convert LinkedIn export to Markdown files."""
         result = self._run_conversion(lang, report_mode=False)
         return list(result.files)
+
+    def convert_career_ops(
+        self,
+        output_dir: Path,
+        lang: str = "en",
+    ) -> list[Path]:
+        """Convert and export career-ops package to target directory."""
+        from linkedin2md.career_ops import export_career_ops
+
+        if self.last_parsed_data is None:
+            raw_data = self._extractor.extract()
+            tracked = _TrackingDict(raw_data)
+            self.last_parsed_data = self._parse_all(tracked)
+
+        return export_career_ops(self.last_parsed_data, output_dir, lang=lang)
 
     def convert_with_report(
         self,
@@ -156,6 +172,7 @@ class LinkedInToMarkdownConverter:
                 tracked,
                 accumulator if report_mode else None,
             )
+            self.last_parsed_data = parsed_data
             all_keys = set(raw_data.keys())
             unconsumed = all_keys - tracked.accessed_keys - _KNOWN_EMPTY_KEYS
             accumulator.set_unconsumed_keys(unconsumed)
