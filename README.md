@@ -1,4 +1,4 @@
-# linkedin2md — v0.7.1
+# linkedin2md — v0.8.0
 
 [![PyPI version](https://img.shields.io/pypi/v/linkedin2md?style=flat-square&label=PyPI)](https://pypi.org/project/linkedin2md/)
 [![Python versions](https://img.shields.io/pypi/pyversions/linkedin2md)](https://pypi.org/project/linkedin2md/)
