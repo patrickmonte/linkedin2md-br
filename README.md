@@ -34,45 +34,116 @@ Once your LinkedIn data is in an LLM, try asking:
 | "What qualities do people consistently mention about me?" | recommendations.md, endorsements.md |
 | "Based on my experience, what roles should I target?" | All files |
 
+## System Requirements
+
+`linkedin2md` has a **zero-dependency core** (pure Python standard library) for core Markdown conversion and Career-Ops export.
+
+| Platform | Supported Versions | Notes |
+|----------|-------------------|-------|
+| **Windows** | Windows 10, 11, Windows Server | PowerShell 5.1+, PowerShell 7+, Command Prompt, Windows Terminal |
+| **Linux** | Debian, Ubuntu 20.04+, Fedora, Arch, Alpine | All distributions with Python 3.10+ |
+| **macOS** | macOS 12 (Monterey) or later | Apple Silicon (M1/M2/M3/M4) & Intel (x86_64) |
+| **Python** | 3.10, 3.11, 3.12, 3.13, 3.14 | Standard CPython |
+
+### Optional Feature Requirements
+
+*   **PDF Resume Generation (`--pdf`)**: Requires `weasyprint` and `markdown`:
+    *   **Windows**: Wheels bundle all native libraries automatically (`pip install weasyprint markdown`).
+    *   **Linux (Ubuntu/Debian)**: `sudo apt-get install libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz0b` then `pip install weasyprint markdown`.
+    *   **macOS**: `brew install pango` then `pip install weasyprint markdown`.
+*   **Career-Ops Integration (`--career-ops`)**:
+    *   Exporting the package requires only `linkedin2md` (**zero external dependencies**).
+    *   Executing the AI search agent in the exported folder requires **Node.js 18+** (for `npx @santifer/career-ops init`) and an AI coding CLI (Claude Code, OpenCode, Codex, Cursor, etc.).
+
 ## Installation
 
-**Recommended** (using pipx - installs in isolated environment):
+### Recommended (All Platforms via pipx)
+
+Installs `linkedin2md` in an isolated environment and exposes it globally:
+
 ```bash
 pipx install linkedin2md
 ```
 
-Or with pip (in a virtual environment):
-```bash
+### Windows
+
+Open **PowerShell** or **Command Prompt**:
+
+```powershell
+# Using pip:
 pip install linkedin2md
+
+# Or using uv tool (fastest):
+uv tool install linkedin2md
 ```
 
-> **Note**: On modern Linux systems (Debian, Ubuntu 23.04+, Fedora), use `pipx` to avoid the "externally-managed-environment" error.
-
-## Usage
+### Linux (Ubuntu, Debian, Fedora, Arch)
 
 ```bash
-linkedin2md Complete_LinkedInDataExport.zip
-linkedin2md export.zip -o ./my-profile
-linkedin2md export.zip --lang es
-linkedin2md export.zip --lang pt  # Portuguese (Brasil)
-linkedin2md export.zip --career-ops  # Export package for career-ops AI agent
-linkedin2md export.zip --pdf  # Generate beautiful PDF CV alongside Markdown files
-linkedin2md export.zip --report report.json --strict  # Save diagnostics and fail on omissions
+# Using pipx (recommended, prevents PEP 668 externally-managed-environment errors):
+sudo apt install pipx  # on Debian/Ubuntu
+pipx ensurepath
+pipx install linkedin2md
+
+# Or using uv:
+uv tool install linkedin2md
 ```
 
-Then drag the output folder into your favorite AI tool.
+### macOS
 
-### Options
+Open **Terminal**:
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `source` | LinkedIn ZIP export file (required) | - |
-| `-o, --output` | Output directory | `linkedin_export` |
-| `--lang` | Output language (`en`, `es`, `pt`, or `pt-BR`) | `en` |
-| `--career-ops [DIR]` | Export master CV and config package for [career-ops](https://github.com/career-ops-hq/career-ops) | `None` |
-| `--pdf` | Generate an elegant A4 PDF resume from your profile | `False` |
-| `--strict` | Return non-zero when diagnostics report conversion problems | `False` |
-| `--report PATH` | Write a private JSON conversion diagnostics report | - |
+```bash
+# Using Homebrew + pipx:
+brew install pipx
+pipx ensurepath
+pipx install linkedin2md
+
+# Or using uv:
+uv tool install linkedin2md
+```
+
+## Usage & Parameter Reference
+
+### Quick Examples
+
+```bash
+# Standard conversion (creates linkedin_export/ with 40+ clean markdown files)
+linkedin2md Complete_LinkedInDataExport.zip
+
+# Custom output directory
+linkedin2md export.zip -o ./my-profile
+
+# Export in Brazilian Portuguese
+linkedin2md export.zip --lang pt
+
+# Export in Spanish
+linkedin2md export.zip --lang es
+
+# Export ready-to-use package for career-ops AI agent
+linkedin2md export.zip --career-ops ./my-career-ops --lang pt
+
+# Generate elegant A4 PDF resume alongside Markdown files
+linkedin2md export.zip --lang pt --pdf
+
+# CI/CD / Automated audit mode: fail on omissions and generate private JSON diagnostics
+linkedin2md export.zip --strict --report diagnostics.json -q
+```
+
+### Parameter Reference
+
+| Parameter | Type / Format | Default | Description |
+|-----------|---------------|---------|-------------|
+| `source` | `Path` (Positional) | *Required* | Path to LinkedIn data ZIP file (`Complete_LinkedInDataExport_*.zip` or `Basic_LinkedInDataExport_*.zip`). |
+| `-o`, `--output` | `Directory Path` | `linkedin_export` | Destination directory for converted Markdown files. Created automatically if it does not exist. |
+| `--lang` | `Choice` | `en` | Target prose language for headings, tables, labels, and dates. Supported values: `en`, `pt` (or `pt-BR`, `pt_BR`, `portuguese`), `es` (or `spanish`). |
+| `--career-ops [DIR]` | `Directory Path` (Optional) | `None` | Exports master CV (`cv.md`), configuration (`config/profile.yml`), applications tracker (`data/applications.md`), and instructions for [career-ops](https://github.com/career-ops-hq/career-ops). Defaults to `<output>/career-ops` if passed without path. |
+| `--pdf` | `Flag` | `False` | Renders a print-ready A4 executive PDF resume (`profile.pdf`) from your profile and experience data. Fully localized according to `--lang`. |
+| `--strict` | `Flag` | `False` | Enforces strict conversion integrity; exits with status code `1` if diagnostics report unconsumed CSV files or extraction anomalies. |
+| `--report PATH` | `File Path` | `None` | Writes a private JSON diagnostics report with timing per section, CSV key coverage, and integrity verification. |
+| `-q`, `--quiet` | `Flag` | `False` | Suppresses stdout progress and file listing messages. Ideal for scripts and background processing. |
+| `--version` | `Flag` | - | Displays installed version (`linkedin2md 0.8.0`) and exits. |
+| `-h`, `--help` | `Flag` | - | Displays command-line help and usage reference. |
 
 ## How to Export Your LinkedIn Data
 

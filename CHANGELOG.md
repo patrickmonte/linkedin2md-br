@@ -16,6 +16,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added bounded archive extraction with member, path, compression, size, row, and field limits.
 - Added UTF-8 BOM support, duplicate CSV detection, encrypted/symlink member rejection, and atomic private output writes.
 
+## [0.8.0] - 2026-10-14
+
+### Added
+- **Full Support for Brazilian Portuguese (`pt-BR`)**:
+  - Full localization catalog (`i18n.py`) covering all 65 section formatters (headings, table headers, labels, date formats like `"jul de 2008 – jun de 2026"` and `"Atual"`).
+  - Trilingual language detector (`PortugueseSpanishEnglishDetector`) supporting Portuguese (`pt`, `pt-BR`, `portuguese`, `português`), Spanish (`es`), and English (`en`).
+  - MultilingualText with Portuguese property `.pt` and fallback resolution chain.
+  - PDF resume generation with Portuguese typography, `<html lang="pt-BR">`, and localized pagination (`"Página X de Y"`).
+  - Contract and CLI updated to accept `--lang pt` and `--lang pt-BR`.
+- **Career-Ops Export Package (`--career-ops [DIR]`)**:
+  - Direct export of LinkedIn data for use with the open-source AI job search agent [career-ops](https://github.com/career-ops-hq/career-ops).
+  - Generates `cv.md` (Master Curriculum Vitae for AI scoring and ATS tailoring).
+  - Generates `config/profile.yml` (Candidate configuration with personal info, target roles, superpowers, location, and output language).
+  - Generates `data/applications.md` (Flat-file tracker pre-populated with past LinkedIn job applications and ISO dates `YYYY-MM-DD`).
+  - Generates `README.md` with instructions for `npx @santifer/career-ops init`.
+  - Zero external dependencies (stdlib-only implementation).
+
 ## [0.7.2] - 2026-08-11
 
 ### Changed
