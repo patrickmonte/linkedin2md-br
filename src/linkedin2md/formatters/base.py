@@ -14,6 +14,7 @@ from email.headerregistry import Address
 from typing import Any
 from urllib.parse import unquote_to_bytes, urlsplit
 
+from linkedin2md.i18n import localize_date, normalize_language, translate
 from linkedin2md.protocols import MultilingualText, SectionFormatter
 
 logger = logging.getLogger(__name__)
@@ -74,9 +75,9 @@ class BaseFormatter(ABC, SectionFormatter):
 
         Args:
             multilingual: Text container (MultilingualText, dict, str, or None)
-            lang: Preferred language code
+            lang: Preferred language code (aliases such as "pt-BR" accepted)
             fallback_chain: Languages to try if preferred not found
-                (default: ["en", "es"])
+                (default: ["en", "es", "pt"])
 
         Returns:
             Text in requested or fallback language
@@ -86,8 +87,28 @@ class BaseFormatter(ABC, SectionFormatter):
         if isinstance(multilingual, str):
             return multilingual
         if isinstance(multilingual, MultilingualText):
-            return multilingual.get(lang, fallback_chain=fallback_chain or ["en", "es"])
+            return multilingual.get(
+                normalize_language(lang), fallback_chain=fallback_chain
+            )
         return ""
+
+    # ========================================================================
+    # Localization Helpers
+    # ========================================================================
+
+    def _t(self, message: str, lang: str) -> str:
+        """Translate a fixed (trusted) English label into ``lang``."""
+        return translate(message, lang)
+
+    def _table_header(self, labels: list[str], lang: str) -> str:
+        """Render a translated Markdown table header row."""
+        return "| " + " | ".join(translate(label, lang) for label in labels) + " |"
+
+    def _localize_date(self, value: object, lang: str) -> object:
+        """Localize a canonical "Mon YYYY" date; other values pass through."""
+        if isinstance(value, str):
+            return localize_date(value, lang)
+        return value
 
     def _escape_pipe(self, text: str | None) -> str:
         """Escape a value using the compatibility table-cell policy."""
@@ -467,15 +488,17 @@ class SimpleListFormatter(BaseFormatter):
 
     def _format_content(self, data: Any, lang: str) -> str:
         """Render data as a markdown table."""
-        lines = [f"# {self.title}", ""]
-        lines.append("| " + " | ".join(self.headers) + " |")
+        lines = [f"# {self._t(self.title, lang)}", ""]
+        lines.append(self._table_header(self.headers, lang))
         lines.append("|" + "|".join(["------"] * len(self.headers)) + "|")
 
         for row in data:
             cells = [
                 self._render_plain_url(row.get(field, ""))
                 if field in self.url_fields
-                else self._escape_table_cell(row.get(field, ""))
+                else self._escape_table_cell(
+                    self._localize_date(row.get(field, ""), lang)
+                )
                 for field in self.fields
             ]
             lines.append(f"| {' | '.join(cells)} |")

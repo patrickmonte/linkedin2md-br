@@ -14,6 +14,9 @@ from typing import Any, Protocol, runtime_checkable
 # Core Data Types
 # ============================================================================
 
+#: Content languages tried, in order, when the requested one is missing.
+DEFAULT_FALLBACK_CHAIN: tuple[str, ...] = ("en", "es", "pt")
+
 
 class MultilingualText:
     """Immutable multilingual text container.
@@ -46,6 +49,11 @@ class MultilingualText:
         """Backward compatibility: get Spanish text."""
         return self._texts.get("es", "")
 
+    @property
+    def pt(self) -> str:
+        """Get Brazilian Portuguese text."""
+        return self._texts.get("pt", "")
+
     def get(
         self,
         lang: str,
@@ -57,7 +65,7 @@ class MultilingualText:
         Args:
             lang: Primary language code to retrieve
             fallback_chain: Languages to try if primary not found
-                (default: ["en", "es"])
+                (default: DEFAULT_FALLBACK_CHAIN, i.e. ["en", "es", "pt"])
             default: Value if no language found
 
         Returns:
@@ -66,7 +74,7 @@ class MultilingualText:
         if lang in self._texts and self._texts[lang]:
             return self._texts[lang]
 
-        for fb in fallback_chain or ["en", "es"]:
+        for fb in fallback_chain or DEFAULT_FALLBACK_CHAIN:
             if fb in self._texts and self._texts[fb]:
                 return self._texts[fb]
 

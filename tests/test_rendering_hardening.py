@@ -1353,7 +1353,7 @@ def test_malicious_zip_is_inert_end_to_end(tmp_path: Path) -> None:
 def test_public_surface_and_dependency_contract_are_unchanged() -> None:
     assert CONVERSION_CONTRACT.format_version == 1
     assert CONVERSION_CONTRACT.default_language == "en"
-    assert CONVERSION_CONTRACT.supported_languages == ("en", "es")
+    assert CONVERSION_CONTRACT.supported_languages == ("en", "es", "pt")
     assert CONVERSION_CONTRACT.output_extension == ".md"
     assert CONVERSION_CONTRACT.output_encoding == "utf-8"
     assert CONVERSION_CONTRACT.formatter_keys == EXPECTED_CONTRACT_KEYS
@@ -1446,5 +1446,6 @@ def test_public_surface_and_dependency_contract_are_unchanged() -> None:
         "typing",
         "unicodedata",
         "urllib.parse",
+        "linkedin2md.i18n",
         "linkedin2md.protocols",
     }

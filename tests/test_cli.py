@@ -42,6 +42,16 @@ class TestParseArgs:
         args = _parse_args(["export.zip", "--lang", "es"])
         assert args.lang == "es"
 
+    def test_parse_with_lang_pt(self):
+        """Test parsing with Portuguese language."""
+        args = _parse_args(["export.zip", "--lang", "pt"])
+        assert args.lang == "pt"
+
+    def test_parse_with_lang_pt_br(self):
+        """Test parsing with Brazilian Portuguese alias."""
+        args = _parse_args(["export.zip", "--lang", "pt-BR"])
+        assert args.lang == "pt"
+
     def test_parse_invalid_lang(self):
         """Test parsing with invalid language raises error."""
         with pytest.raises(SystemExit):
@@ -158,6 +168,36 @@ class TestMain:
                 result = main()
 
             assert result == 0
+
+    def test_conversion_with_portuguese(self, capsys):
+        """Test conversion with Portuguese language option."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            zip_path = Path(tmpdir) / "export.zip"
+            with zipfile.ZipFile(zip_path, "w") as zf:
+                zf.writestr(
+                    "Profile.csv",
+                    "First Name,Last Name,Headline\nAna,Silva,Engenheira de Software",
+                )
+
+            output_dir = Path(tmpdir) / "output"
+
+            with patch(
+                "sys.argv",
+                [
+                    "linkedin2md",
+                    str(zip_path),
+                    "-o",
+                    str(output_dir),
+                    "--lang",
+                    "pt-BR",
+                ],
+            ):
+                result = main()
+
+            assert result == 0
+            profile_md = (output_dir / "profile.md").read_text(encoding="utf-8")
+            assert "Ana Silva" in profile_md
+            assert "Engenheira de Software" in profile_md
 
     def test_invalid_zip_file(self, caplog):
         """Test error when ZIP file is corrupted."""

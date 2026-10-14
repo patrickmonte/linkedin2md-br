@@ -16,12 +16,14 @@ class AdsClickedFormatter(BaseFormatter):
         return "ads_clicked"
 
     def _format_content(self, data: list, lang: str) -> str:
-        lines = ["# Ads Clicked", ""]
-        lines.append("| Date | Ad ID |")
+        lines = [f"# {self._t('Ads Clicked', lang)}", ""]
+        lines.append(self._table_header(["Date", "Ad ID"], lang))
         lines.append("|------|-------|")
 
         for ad in data:
-            date = self._escape_table_cell(ad.get("date", ""))
+            date = self._escape_table_cell(
+                self._localize_date(ad.get("date", ""), lang)
+            )
             ad_id = self._escape_table_cell(ad.get("ad_id", ""))
             lines.append(f"| {date} | {ad_id} |")
 
@@ -38,7 +40,7 @@ class AdTargetingFormatter(BaseFormatter):
         return "ad_targeting"
 
     def _format_content(self, data: dict, lang: str) -> str:
-        lines = ["# Ad Targeting Criteria", ""]
+        lines = [f"# {self._t('Ad Targeting Criteria', lang)}", ""]
 
         for key, value in data.items():
             if value:
@@ -61,12 +63,14 @@ class LanAdsFormatter(BaseFormatter):
         return "lan_ads"
 
     def _format_content(self, data: list, lang: str) -> str:
-        lines = ["# LinkedIn Audience Network Ads", ""]
-        lines.append("| Date | Action | Ad ID | Page/App |")
+        lines = [f"# {self._t('LinkedIn Audience Network Ads', lang)}", ""]
+        lines.append(self._table_header(["Date", "Action", "Ad ID", "Page/App"], lang))
         lines.append("|------|--------|-------|----------|")
 
         for ad in data:
-            date = self._escape_table_cell(ad.get("date", ""))
+            date = self._escape_table_cell(
+                self._localize_date(ad.get("date", ""), lang)
+            )
             action = self._escape_table_cell(ad.get("action", ""))
             ad_id = self._escape_table_cell(ad.get("ad_id", ""))
             page = self._escape_table_cell(ad.get("page_app", ""))
@@ -85,8 +89,11 @@ class InferencesFormatter(BaseFormatter):
         return "inferences"
 
     def _format_content(self, data: list, lang: str) -> str:
-        lines = ["# LinkedIn's Inferences About You", ""]
-        lines.append("| Category | Type | Description | Inference |")
+        title = self._t("LinkedIn's Inferences About You", lang)
+        lines = [f"# {title}", ""]
+        lines.append(
+            self._table_header(["Category", "Type", "Description", "Inference"], lang)
+        )
         lines.append("|----------|------|-------------|-----------|")
 
         for inf in data:

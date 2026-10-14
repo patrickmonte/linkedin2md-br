@@ -85,9 +85,11 @@ pyrightconfig.json
 # macOS
 .DS_Store
 
-# Output directories (for testing)
+# Output and test input directories (for testing)
 linkedin_export/
 output/
+output_pt/
+input/
 # N3RV agent framework (local dev only)
 .opencode/
 .githooks/

@@ -156,7 +156,7 @@ def main() -> int:
         if not args.quiet:
             print("Generating PDF Resume...")
         resume_markdown = assemble_resume_markdown(resume_md_parts)
-        if convert_md_to_pdf(resume_markdown, pdf_path):
+        if convert_md_to_pdf(resume_markdown, pdf_path, lang=args.lang):
             if not args.quiet:
                 print(f"Created PDF Resume: {pdf_path}")
         else:
@@ -164,6 +164,15 @@ def main() -> int:
             return 1
 
     return 0
+
+
+def _normalize_cli_lang(val: str) -> str:
+    from linkedin2md.i18n import normalize_language
+
+    try:
+        return normalize_language(val, strict=True)
+    except ValueError as e:
+        raise argparse.ArgumentTypeError(str(e)) from e
 
 
 def _parse_args(argv: list[str]) -> argparse.Namespace:
@@ -191,9 +200,10 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     )
     parser.add_argument(
         "--lang",
-        choices=["en", "es"],
+        type=_normalize_cli_lang,
+        choices=["en", "es", "pt"],
         default="en",
-        help="Output language (default: en)",
+        help="Output language (default: en; options: en, es, pt, pt-BR)",
     )
     parser.add_argument(
         "--pdf",

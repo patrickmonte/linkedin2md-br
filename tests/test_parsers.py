@@ -124,6 +124,17 @@ class TestTitleParser:
         result = parser.parse(data)
         assert result.es == "Desarrollador de Software con experiencia"
 
+    def test_parse_portuguese_title(self):
+        """Test parsing Portuguese headline."""
+        parser = TitleParser()
+        data = {
+            "profile": [
+                {"Headline": "Desenvolvedor de Software com bastante experiência"}
+            ]
+        }
+        result = parser.parse(data)
+        assert result.pt == "Desenvolvedor de Software com bastante experiência"
+
 
 class TestEmailParser:
     """Tests for EmailParser."""
@@ -219,6 +230,17 @@ class TestSummaryParser:
         data = {"profile": [{"Summary": spanish_summary}]}
         result = parser.parse(data)
         assert result.es == spanish_summary
+
+    def test_parse_portuguese_summary(self):
+        """Test parsing Portuguese summary."""
+        parser = SummaryParser()
+        portuguese_summary = (
+            "Sou um desenvolvedor de software com bastante "
+            "experiência em Python e atuação em projetos."
+        )
+        data = {"profile": [{"Summary": portuguese_summary}]}
+        result = parser.parse(data)
+        assert result.pt == portuguese_summary
 
 
 class TestProfileMetaParser:
@@ -526,6 +548,19 @@ class TestLanguagesParser:
         data = {"languages": [{"Name": "inglés", "Proficiency": "Native"}]}
         result = parser.parse(data)
         assert result[0]["name"] == "English"
+
+    def test_parse_normalize_portuguese_names(self):
+        """Test normalization of Portuguese language names."""
+        parser = LanguagesParser()
+        data = {
+            "languages": [
+                {"Name": "chinês", "Proficiency": "Avançado"},
+                {"Name": "holandês", "Proficiency": "Básico"},
+            ]
+        }
+        result = parser.parse(data)
+        assert result[0]["name"] == "Chinese"
+        assert result[1]["name"] == "Dutch"
 
 
 class TestProjectsParser:

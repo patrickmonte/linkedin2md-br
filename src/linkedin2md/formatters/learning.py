@@ -16,12 +16,16 @@ class LearningFormatter(BaseFormatter):
         return "learning"
 
     def _format_content(self, data: list, lang: str) -> str:
-        lines = ["# LinkedIn Learning", ""]
+        lines = [f"# {self._t('LinkedIn Learning', lang)}", ""]
 
         for course in data:
             title = self._escape_list_item(course.get("title", ""))
             completed = course.get("completed_at")
-            status = "Completed" if completed else "In Progress"
+            status = (
+                self._t("Completed", lang)
+                if completed
+                else self._t("In Progress", lang)
+            )
             lines.append(f"- **{title}** ({status})")
 
         lines.append("")
@@ -37,14 +41,16 @@ class LearningReviewsFormatter(BaseFormatter):
         return "learning_reviews"
 
     def _format_content(self, data: list, lang: str) -> str:
-        lines = ["# Learning Reviews", ""]
-        lines.append("| Content | Rating | Date |")
+        lines = [f"# {self._t('Learning Reviews', lang)}", ""]
+        lines.append(self._table_header(["Content", "Rating", "Date"], lang))
         lines.append("|---------|--------|------|")
 
         for review in data:
             content = self._escape_table_cell(review.get("content", ""))
             rating = self._escape_table_cell(review.get("rating", ""))
-            date = self._escape_table_cell(review.get("date", ""))
+            date = self._escape_table_cell(
+                self._localize_date(review.get("date", ""), lang)
+            )
             lines.append(f"| {content} | {rating} | {date} |")
 
         lines.append("")

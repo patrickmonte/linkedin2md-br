@@ -41,7 +41,7 @@ def assemble_resume_markdown(sections: list[tuple[str, str]]) -> str:
     return "\n\n".join(parts)
 
 
-def convert_md_to_pdf(markdown_content: str, pdf_path: Path) -> bool:
+def convert_md_to_pdf(markdown_content: str, pdf_path: Path, lang: str = "en") -> bool:
     """Convert generated profile markdown into an elegant, styled A4 print-ready PDF.
 
     This feature is optional and requires 'markdown' and 'weasyprint' packages.
@@ -58,24 +58,31 @@ def convert_md_to_pdf(markdown_content: str, pdf_path: Path) -> bool:
         return False
 
     try:
+        from linkedin2md.i18n import language_tag, translate
+
         # Convert Markdown to HTML
         html_body = markdown.markdown(
             markdown_content, extensions=["tables", "fenced_code"]
         )
 
+        doc_lang = language_tag(lang)
+        doc_title = translate("LinkedIn Export Resume", lang)
+        page_label = translate("Page", lang)
+        of_label = translate("of", lang)
+
         # Styled executive A4 print CSS
         styled_html = f"""
 <!DOCTYPE html>
-<html>
+<html lang="{doc_lang}">
 <head>
     <meta charset="utf-8">
-    <title>LinkedIn Export Resume</title>
+    <title>{doc_title}</title>
     <style>
         @page {{
             size: A4;
             margin: 15mm;
             @bottom-right {{
-                content: "Page " counter(page) " of " counter(pages);
+                content: "{page_label} " counter(page) " {of_label} " counter(pages);
                 font-size: 8pt;
                 font-family: Arial, sans-serif;
                 color: #777;

@@ -16,15 +16,19 @@ class ConnectionsFormatter(BaseFormatter):
         return "connections"
 
     def _format_content(self, data: list, lang: str) -> str:
-        lines = ["# Connections", ""]
-        lines.append("| Name | Company | Position | Connected |")
+        lines = [f"# {self._t('Connections', lang)}", ""]
+        lines.append(
+            self._table_header(["Name", "Company", "Position", "Connected"], lang)
+        )
         lines.append("|------|---------|----------|-----------|")
 
         for conn in data:
             name = self._escape_table_cell(conn.get("name", ""))
             company = self._escape_table_cell(conn.get("company", ""))
             position = self._escape_table_cell(conn.get("position", ""))
-            connected = self._escape_table_cell(conn.get("connected_on", ""))
+            connected = self._escape_table_cell(
+                self._localize_date(conn.get("connected_on", ""), lang)
+            )
             lines.append(f"| {name} | {company} | {position} | {connected} |")
 
         lines.append("")
@@ -40,7 +44,7 @@ class CompaniesFollowedFormatter(BaseFormatter):
         return "companies_followed"
 
     def _format_content(self, data: list, lang: str) -> str:
-        lines = ["# Companies Followed", ""]
+        lines = [f"# {self._t('Companies Followed', lang)}", ""]
         for company in data:
             name = self._escape_list_item(company.get("name", ""))
             lines.append(f"- {name}")
@@ -57,13 +61,15 @@ class MembersFollowedFormatter(BaseFormatter):
         return "members_followed"
 
     def _format_content(self, data: list, lang: str) -> str:
-        lines = ["# Members Followed", ""]
-        lines.append("| Name | Date | Status |")
+        lines = [f"# {self._t('Members Followed', lang)}", ""]
+        lines.append(self._table_header(["Name", "Date", "Status"], lang))
         lines.append("|------|------|--------|")
 
         for member in data:
             name = self._escape_table_cell(member.get("name", ""))
-            date = self._escape_table_cell(member.get("date", ""))
+            date = self._escape_table_cell(
+                self._localize_date(member.get("date", ""), lang)
+            )
             status = self._escape_table_cell(member.get("status", ""))
             lines.append(f"| {name} | {date} | {status} |")
 
@@ -80,14 +86,16 @@ class InvitationsFormatter(BaseFormatter):
         return "invitations"
 
     def _format_content(self, data: list, lang: str) -> str:
-        lines = ["# Connection Invitations", ""]
-        lines.append("| From | To | Date | Direction |")
+        lines = [f"# {self._t('Connection Invitations', lang)}", ""]
+        lines.append(self._table_header(["From", "To", "Date", "Direction"], lang))
         lines.append("|------|-----|------|-----------|")
 
         for inv in data:
             from_name = self._escape_table_cell(inv.get("from", ""))
             to_name = self._escape_table_cell(inv.get("to", ""))
-            date = self._escape_table_cell(inv.get("sent_at", ""))
+            date = self._escape_table_cell(
+                self._localize_date(inv.get("sent_at", ""), lang)
+            )
             direction = self._escape_table_cell(inv.get("direction", ""))
             lines.append(f"| {from_name} | {to_name} | {date} | {direction} |")
 
@@ -104,8 +112,8 @@ class ImportedContactsFormatter(BaseFormatter):
         return "imported_contacts"
 
     def _format_content(self, data: list, lang: str) -> str:
-        lines = ["# Imported Contacts", ""]
-        lines.append("| Name | Email | Title |")
+        lines = [f"# {self._t('Imported Contacts', lang)}", ""]
+        lines.append(self._table_header(["Name", "Email", "Title"], lang))
         lines.append("|------|-------|-------|")
 
         for contact in data:

@@ -6,7 +6,6 @@ Each parser handles ONE section (SRP).
 import re
 
 from linkedin2md.parsers.base import BaseParser, merge_bilingual_entries
-from linkedin2md.protocols import BilingualText
 from linkedin2md.registry import register_parser
 
 
@@ -94,10 +93,7 @@ class ExperienceParser(BaseParser):
             if not line or len(line) < 10:
                 continue
 
-            text = BilingualText(
-                en=line if lang == "en" else "",
-                es=line if lang == "es" else "",
-            )
+            text = self._create_bilingual(line, lang)
             achievements.append({"text": text})
 
         return achievements
@@ -193,11 +189,16 @@ class LanguagesParser(BaseParser):
         "italiano": "Italian",
         "portugués": "Portuguese",
         "chino": "Chinese",
+        "chinês": "Chinese",
+        "mandarim": "Chinese",
         "japonés": "Japanese",
         "coreano": "Korean",
         "árabe": "Arabic",
         "ruso": "Russian",
         "hindi": "Hindi",
+        "holandés": "Dutch",
+        "holandês": "Dutch",
+        "neerlandês": "Dutch",
     }
 
     def parse(self, raw_data: dict[str, list[dict]]) -> list[dict]:

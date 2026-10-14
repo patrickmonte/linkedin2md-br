@@ -4,6 +4,7 @@ Each formatter handles ONE section (SRP).
 """
 
 from linkedin2md.formatters.base import BaseFormatter
+from linkedin2md.i18n import translate_language_name, translate_proficiency
 from linkedin2md.registry import register_formatter
 
 
@@ -16,7 +17,7 @@ class SkillsFormatter(BaseFormatter):
         return "skills"
 
     def _format_content(self, data: list, lang: str) -> str:
-        return "# Skills\n\n" + self._escape_joined(data) + "\n"
+        return f"# {self._t('Skills', lang)}\n\n" + self._escape_joined(data) + "\n"
 
 
 @register_formatter
@@ -28,7 +29,7 @@ class ExperienceFormatter(BaseFormatter):
         return "experience"
 
     def _format_content(self, data: list, lang: str) -> str:
-        lines = ["# Experience", ""]
+        lines = [f"# {self._t('Experience', lang)}", ""]
 
         for exp in data:
             company = self._escape_heading(exp.get("company", ""))
@@ -38,11 +39,13 @@ class ExperienceFormatter(BaseFormatter):
 
             date_parts = []
             if exp.get("start"):
-                date_parts.append(self._escape_inline(exp["start"]).replace("\n", " "))
+                start = self._localize_date(exp["start"], lang)
+                date_parts.append(self._escape_inline(start).replace("\n", " "))
             if exp.get("end"):
-                date_parts.append(self._escape_inline(exp["end"]).replace("\n", " "))
+                end = self._localize_date(exp["end"], lang)
+                date_parts.append(self._escape_inline(end).replace("\n", " "))
             else:
-                date_parts.append("Present")
+                date_parts.append(self._t("Present", lang))
 
             location = self._escape_inline(exp.get("location", "")).replace("\n", " ")
             role_value = self._escape_inline(role).replace("\n", " ")
@@ -77,7 +80,7 @@ class EducationFormatter(BaseFormatter):
         return "education"
 
     def _format_content(self, data: list, lang: str) -> str:
-        lines = ["# Education", ""]
+        lines = [f"# {self._t('Education', lang)}", ""]
 
         for edu in data:
             institution = self._escape_heading(edu.get("institution", ""))
@@ -103,13 +106,13 @@ class EducationFormatter(BaseFormatter):
             field = edu.get("field")
             if field:
                 field_value = self._escape_inline(field).replace("\n", " ")
-                lines.append(f"**Field of Study:** {field_value}")
+                lines.append(f"**{self._t('Field of Study', lang)}:** {field_value}")
                 lines.append("")
 
             grade = edu.get("grade")
             if grade:
                 grade_value = self._escape_inline(grade).replace("\n", " ")
-                lines.append(f"**Grade:** {grade_value}")
+                lines.append(f"**{self._t('Grade', lang)}:** {grade_value}")
                 lines.append("")
 
             notes = self._get_text(edu.get("notes"), lang)
@@ -120,7 +123,7 @@ class EducationFormatter(BaseFormatter):
             activities = edu.get("activities")
             if activities:
                 activity_value = self._escape_inline(activities).replace("\n", " ")
-                lines.append(f"Activities: {activity_value}")
+                lines.append(f"{self._t('Activities', lang)}: {activity_value}")
                 lines.append("")
 
             lines.append("---")
@@ -138,7 +141,7 @@ class CertificationsFormatter(BaseFormatter):
         return "certifications"
 
     def _format_content(self, data: list, lang: str) -> str:
-        lines = ["# Certifications", ""]
+        lines = [f"# {self._t('Certifications', lang)}", ""]
 
         for cert in data:
             name = self._escape_heading(cert.get("name", ""))
@@ -149,12 +152,13 @@ class CertificationsFormatter(BaseFormatter):
                 issuer = self._escape_inline(cert["issuer"]).replace("\n", " ")
                 meta_parts.append(f"**{issuer}**")
             if cert.get("date"):
-                date = self._escape_inline(cert["date"]).replace("\n", " ")
+                cert_date = self._localize_date(cert["date"], lang)
+                date = self._escape_inline(cert_date).replace("\n", " ")
                 meta_parts.append(date)
             if meta_parts:
                 lines.append(" | ".join(meta_parts))
 
-            link = self._render_link("View Certificate", cert.get("url"))
+            link = self._render_link(self._t("View Certificate", lang), cert.get("url"))
             if link:
                 lines.append("")
                 lines.append(link)
@@ -175,13 +179,17 @@ class LanguagesFormatter(BaseFormatter):
         return "languages"
 
     def _format_content(self, data: list, lang: str) -> str:
-        lines = ["# Languages", ""]
+        lines = [f"# {self._t('Languages', lang)}", ""]
 
         for language in data:
-            name = self._escape_list_item(language.get("name", ""))
-            proficiency = self._escape_inline(language.get("proficiency", "")).replace(
-                "\n", " "
-            )
+            raw_name = language.get("name", "")
+            raw_proficiency = language.get("proficiency", "")
+            if isinstance(raw_name, str):
+                raw_name = translate_language_name(raw_name, lang)
+            if isinstance(raw_proficiency, str):
+                raw_proficiency = translate_proficiency(raw_proficiency, lang)
+            name = self._escape_list_item(raw_name)
+            proficiency = self._escape_inline(raw_proficiency).replace("\n", " ")
             if proficiency:
                 lines.append(f"- **{name}**: {proficiency}")
             else:
@@ -200,7 +208,7 @@ class ProjectsFormatter(BaseFormatter):
         return "projects"
 
     def _format_content(self, data: list, lang: str) -> str:
-        lines = ["# Projects", ""]
+        lines = [f"# {self._t('Projects', lang)}", ""]
 
         for proj in data:
             title = self._escape_heading(proj.get("title", ""))
@@ -208,9 +216,11 @@ class ProjectsFormatter(BaseFormatter):
 
             date_parts = []
             if proj.get("start"):
-                date_parts.append(self._escape_inline(proj["start"]).replace("\n", " "))
+                start = self._localize_date(proj["start"], lang)
+                date_parts.append(self._escape_inline(start).replace("\n", " "))
             if proj.get("end"):
-                date_parts.append(self._escape_inline(proj["end"]).replace("\n", " "))
+                end = self._localize_date(proj["end"], lang)
+                date_parts.append(self._escape_inline(end).replace("\n", " "))
             if date_parts:
                 lines.append(" - ".join(date_parts))
 
@@ -219,7 +229,7 @@ class ProjectsFormatter(BaseFormatter):
                 lines.append("")
                 lines.append(self._escape_block(description))
 
-            link = self._render_link("View Project", proj.get("url"))
+            link = self._render_link(self._t("View Project", lang), proj.get("url"))
             if link:
                 lines.append("")
                 lines.append(link)

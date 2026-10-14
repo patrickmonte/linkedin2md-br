@@ -319,6 +319,32 @@ Phone,off""",
         profile_content = (output_dir / "profile.md").read_text(encoding="utf-8")
         assert "John Doe" in profile_content
 
+    def test_full_conversion_portuguese(
+        self, sample_linkedin_export: Path, tmp_path: Path
+    ):
+        """Test full conversion with Brazilian Portuguese output."""
+        output_dir = tmp_path / "output"
+
+        converter = create_converter(sample_linkedin_export, output_dir)
+        files = converter.convert(lang="pt-BR")
+
+        assert output_dir.exists()
+        assert len(files) >= 10
+
+        profile_content = (output_dir / "profile.md").read_text(encoding="utf-8")
+        assert "John Doe" in profile_content
+        assert "## Resumo" in profile_content
+
+        skills_content = (output_dir / "skills.md").read_text(encoding="utf-8")
+        assert "# Competências" in skills_content
+
+        exp_content = (output_dir / "experience.md").read_text(encoding="utf-8")
+        assert "# Experiência" in exp_content
+        assert "Atual" in exp_content
+
+        edu_content = (output_dir / "education.md").read_text(encoding="utf-8")
+        assert "# Formação Acadêmica" in edu_content
+
     def test_connections_parsing(self, sample_linkedin_export: Path, tmp_path: Path):
         """Test that connections are parsed correctly, including header notes skip."""
         output_dir = tmp_path / "output"

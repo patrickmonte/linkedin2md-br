@@ -3,6 +3,7 @@
 import json
 import os
 import stat
+import sys
 import zipfile
 from dataclasses import FrozenInstanceError
 from pathlib import Path
@@ -179,8 +180,9 @@ def test_write_report_is_private_atomic_and_deterministic(tmp_path):
     assert first == target
     assert second == target
     assert target.read_bytes() == first_bytes
-    assert stat.S_IMODE(target.stat().st_mode) == 0o600
-    assert stat.S_IMODE(target.parent.stat().st_mode) == 0o700
+    if sys.platform != "win32":
+        assert stat.S_IMODE(target.stat().st_mode) == 0o600
+        assert stat.S_IMODE(target.parent.stat().st_mode) == 0o700
     assert not list(target.parent.glob(".linkedin2md-report-*"))
 
 

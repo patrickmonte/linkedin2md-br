@@ -16,12 +16,12 @@ class ServiceEngagementsFormatter(BaseFormatter):
         return "service_engagements"
 
     def _format_content(self, data: list, lang: str) -> str:
-        lines = ["# Service Marketplace Engagements", ""]
-        lines.append("| Date | Type | Amount | Currency |")
+        lines = [f"# {self._t('Service Marketplace Engagements', lang)}", ""]
+        lines.append(self._table_header(["Date", "Type", "Amount", "Currency"], lang))
         lines.append("|------|------|--------|----------|")
 
         for e in data:
-            date = self._escape_table_cell(e.get("date", ""))
+            date = self._escape_table_cell(self._localize_date(e.get("date", ""), lang))
             mtype = self._escape_table_cell(e.get("marketplace_type", ""))
             amount = self._escape_table_cell(e.get("amount", ""))
             currency = self._escape_table_cell(e.get("currency", ""))
@@ -40,10 +40,13 @@ class ServiceOpportunitiesFormatter(BaseFormatter):
         return "service_opportunities"
 
     def _format_content(self, data: list, lang: str) -> str:
-        lines = ["# Service Marketplace Opportunities", ""]
+        lines = [f"# {self._t('Service Marketplace Opportunities', lang)}", ""]
 
         for opp in data:
-            date = self._escape_inline(opp.get("date", "") or "").replace("\n", " ")
+            raw_date = opp.get("date", "") or ""
+            date = self._escape_inline(self._localize_date(raw_date, lang)).replace(
+                "\n", " "
+            )
             category = self._escape_heading(opp.get("category", "") or "")
             location = self._escape_inline(opp.get("location", "") or "").replace(
                 "\n", " "
@@ -51,16 +54,16 @@ class ServiceOpportunitiesFormatter(BaseFormatter):
             status = self._escape_inline(opp.get("status", "") or "").replace("\n", " ")
 
             lines.append(f"## {category}")
-            lines.append(f"**Date:** {date}")
+            lines.append(f"**{self._t('Date', lang)}:** {date}")
             if location:
-                lines.append(f"**Location:** {location}")
+                lines.append(f"**{self._t('Location', lang)}:** {location}")
             if status:
-                lines.append(f"**Status:** {status}")
+                lines.append(f"**{self._t('Status', lang)}:** {status}")
 
             qa = opp.get("questions_answers", "")
             if qa:
                 lines.append("")
-                lines.append("**Details:**")
+                lines.append(f"**{self._t('Details', lang)}:**")
                 lines.append(self._blockquote(qa))
 
             lines.append("")

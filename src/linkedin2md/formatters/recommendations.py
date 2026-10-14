@@ -16,11 +16,13 @@ class RecommendationsFormatter(BaseFormatter):
         return "recommendations"
 
     def _format_content(self, data: list, lang: str) -> str:
-        lines = ["# Recommendations", ""]
+        lines = [f"# {self._t('Recommendations', lang)}", ""]
+        from_label = self._t("From", lang)
+        at_label = self._t("at", lang)
 
         for rec in data:
             author = self._escape_heading(rec.get("author", ""))
-            lines.append(f"## From {author}")
+            lines.append(f"## {from_label} {author}")
 
             meta_parts = []
             if rec.get("title"):
@@ -28,9 +30,11 @@ class RecommendationsFormatter(BaseFormatter):
                 meta_parts.append(f"**{title}**")
             if rec.get("company"):
                 company = self._escape_inline(rec["company"]).replace("\n", " ")
-                meta_parts.append(f"at {company}")
+                meta_parts.append(f"{at_label} {company}")
             if rec.get("date"):
-                date = self._escape_inline(rec["date"]).replace("\n", " ")
+                date = self._escape_inline(
+                    self._localize_date(rec["date"], lang)
+                ).replace("\n", " ")
                 meta_parts.append(f"| {date}")
             if meta_parts:
                 lines.append(" ".join(meta_parts))
@@ -56,11 +60,13 @@ class RecommendationsGivenFormatter(BaseFormatter):
         return "recommendations_given"
 
     def _format_content(self, data: list, lang: str) -> str:
-        lines = ["# Recommendations Given", ""]
+        lines = [f"# {self._t('Recommendations Given', lang)}", ""]
+        to_label = self._t("To", lang)
+        at_label = self._t("at", lang)
 
         for rec in data:
             recipient = self._escape_heading(rec.get("recipient", ""))
-            lines.append(f"## To {recipient}")
+            lines.append(f"## {to_label} {recipient}")
 
             meta_parts = []
             if rec.get("title"):
@@ -68,9 +74,11 @@ class RecommendationsGivenFormatter(BaseFormatter):
                 meta_parts.append(f"**{title}**")
             if rec.get("company"):
                 company = self._escape_inline(rec["company"]).replace("\n", " ")
-                meta_parts.append(f"at {company}")
+                meta_parts.append(f"{at_label} {company}")
             if rec.get("date"):
-                date = self._escape_inline(rec["date"]).replace("\n", " ")
+                date = self._escape_inline(
+                    self._localize_date(rec["date"], lang)
+                ).replace("\n", " ")
                 meta_parts.append(f"| {date}")
             if meta_parts:
                 lines.append(" ".join(meta_parts))
@@ -96,14 +104,16 @@ class EndorsementsFormatter(BaseFormatter):
         return "endorsements"
 
     def _format_content(self, data: list, lang: str) -> str:
-        lines = ["# Endorsements", ""]
-        lines.append("| Skill | Endorsed By | Date |")
+        lines = [f"# {self._t('Endorsements', lang)}", ""]
+        lines.append(self._table_header(["Skill", "Endorsed By", "Date"], lang))
         lines.append("|-------|-------------|------|")
 
         for end in data:
             skill = self._escape_table_cell(end.get("skill", ""))
             endorser = self._escape_table_cell(end.get("endorser", ""))
-            date = self._escape_table_cell(end.get("date", ""))
+            date = self._escape_table_cell(
+                self._localize_date(end.get("date", ""), lang)
+            )
             lines.append(f"| {skill} | {endorser} | {date} |")
 
         lines.append("")
@@ -119,14 +129,16 @@ class EndorsementsGivenFormatter(BaseFormatter):
         return "endorsements_given"
 
     def _format_content(self, data: list, lang: str) -> str:
-        lines = ["# Endorsements Given", ""]
-        lines.append("| Skill | Endorsed | Date |")
+        lines = [f"# {self._t('Endorsements Given', lang)}", ""]
+        lines.append(self._table_header(["Skill", "Endorsed", "Date"], lang))
         lines.append("|-------|----------|------|")
 
         for end in data:
             skill = self._escape_table_cell(end.get("skill", ""))
             endorsee = self._escape_table_cell(end.get("endorsee", ""))
-            date = self._escape_table_cell(end.get("date", ""))
+            date = self._escape_table_cell(
+                self._localize_date(end.get("date", ""), lang)
+            )
             lines.append(f"| {skill} | {endorsee} | {date} |")
 
         lines.append("")

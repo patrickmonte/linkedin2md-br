@@ -1,6 +1,7 @@
 """Tests for extraction limits and secure output handling."""
 
 import stat
+import sys
 import zipfile
 from pathlib import Path
 
@@ -171,8 +172,9 @@ def test_writer_uses_private_permissions_and_atomic_output(tmp_path: Path) -> No
 
     path = writer.write("profile", "# Profile")
 
-    assert stat.S_IMODE(path.stat().st_mode) == 0o600
-    assert stat.S_IMODE(output_dir.stat().st_mode) == 0o700
+    if sys.platform != "win32":
+        assert stat.S_IMODE(path.stat().st_mode) == 0o600
+        assert stat.S_IMODE(output_dir.stat().st_mode) == 0o700
     assert not list(output_dir.glob(".*"))
 
 

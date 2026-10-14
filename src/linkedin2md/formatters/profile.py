@@ -48,7 +48,7 @@ class ProfileFormatter(BaseFormatter):
 
         summary = self._get_text(data.get("summary"), lang)
         if summary:
-            lines.append("## Summary")
+            lines.append(f"## {self._t('Summary', lang)}")
             lines.append("")
             lines.append(self._escape_block(summary))
             lines.append("")
@@ -56,46 +56,49 @@ class ProfileFormatter(BaseFormatter):
         meta = data.get("profile_meta", {})
         if meta:
             detail_lines: list[str] = []
+
+            def add_detail(label: str, value: str) -> None:
+                detail_lines.append(f"- **{self._t(label, lang)}:** {value}")
+
             if meta.get("industry"):
                 industry = self._escape_inline(meta["industry"]).replace("\n", " ")
-                detail_lines.append(f"- **Industry:** {industry}")
+                add_detail("Industry", industry)
             if meta.get("maiden_name"):
                 maiden_name = self._escape_inline(meta["maiden_name"]).replace(
                     "\n", " "
                 )
-                detail_lines.append(f"- **Maiden Name:** {maiden_name}")
+                add_detail("Maiden Name", maiden_name)
             if meta.get("public_profile_url"):
                 link = self._render_link(
                     meta["public_profile_url"], meta["public_profile_url"]
                 )
                 if link:
-                    detail_lines.append(f"- **Profile URL:** {link}")
+                    add_detail("Profile URL", link)
             if meta.get("address"):
                 address = self._escape_inline(meta["address"]).replace("\n", " ")
-                detail_lines.append(f"- **Address:** {address}")
+                add_detail("Address", address)
             if meta.get("twitter"):
                 twitter = self._escape_inline(meta["twitter"]).replace("\n", " ")
-                detail_lines.append(f"- **Twitter:** {twitter}")
+                add_detail("Twitter", twitter)
             if meta.get("websites"):
                 for site in meta["websites"]:
                     website = self._render_plain_url(site)
                     if website:
-                        detail_lines.append(f"- **Website:** {website}")
+                        add_detail("Website", website)
             if meta.get("birth_date"):
                 birth_date = self._escape_inline(meta["birth_date"]).replace("\n", " ")
-                detail_lines.append(f"- **Birth Date:** {birth_date}")
+                add_detail("Birth Date", birth_date)
             if meta.get("registered_at"):
-                registered_at = self._escape_inline(meta["registered_at"]).replace(
-                    "\n", " "
-                )
-                detail_lines.append(f"- **Member Since:** {registered_at}")
+                registered = self._localize_date(meta["registered_at"], lang)
+                registered_at = self._escape_inline(registered).replace("\n", " ")
+                add_detail("Member Since", registered_at)
             if meta.get("connections_count"):
                 connections = self._escape_inline(meta["connections_count"]).replace(
                     "\n", " "
                 )
-                detail_lines.append(f"- **Connections:** {connections}")
+                add_detail("Connections", connections)
             if detail_lines:
-                lines.append("## Profile Details")
+                lines.append(f"## {self._t('Profile Details', lang)}")
                 lines.append("")
                 lines.extend(detail_lines)
                 lines.append("")

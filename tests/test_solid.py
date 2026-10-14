@@ -10,8 +10,12 @@ from linkedin2md.converter import (
     create_converter,
 )
 from linkedin2md.extractor import DictDataExtractor, ZipDataExtractor
-from linkedin2md.language import BilingualTextFactory, SpanishEnglishDetector
-from linkedin2md.protocols import BilingualText
+from linkedin2md.language import (
+    BilingualTextFactory,
+    PortugueseSpanishEnglishDetector,
+    SpanishEnglishDetector,
+)
+from linkedin2md.protocols import BilingualText, MultilingualText
 from linkedin2md.registry import DefaultFormatterRegistry, DefaultParserRegistry
 from linkedin2md.writer import InMemoryWriter, MarkdownFileWriter
 
@@ -29,18 +33,21 @@ class TestBilingualText:
         assert text.es == ""
 
     def test_create_with_values(self):
-        text = BilingualText(en="Hello", es="Hola")
+        text = MultilingualText(en="Hello", es="Hola", pt="Olá")
         assert text.en == "Hello"
         assert text.es == "Hola"
+        assert text.pt == "Olá"
 
     def test_get_preferred_language(self):
-        text = BilingualText(en="Hello", es="Hola")
+        text = MultilingualText(en="Hello", es="Hola", pt="Olá")
         assert text.get("en") == "Hello"
         assert text.get("es") == "Hola"
+        assert text.get("pt") == "Olá"
 
     def test_get_fallback(self):
         text = BilingualText(en="Hello", es="")
         assert text.get("es") == "Hello"  # Falls back to en
+        assert text.get("pt") == "Hello"  # Falls back to en
 
     def test_immutable(self):
         text = BilingualText(en="Hello")
@@ -55,6 +62,38 @@ class TestBilingualText:
 # =============================================================================
 # Language Detection Tests
 # =============================================================================
+
+
+class TestPortugueseSpanishEnglishDetector:
+    """Tests for Portuguese, Spanish, and English language detection."""
+
+    def test_detect_english(self):
+        detector = PortugueseSpanishEnglishDetector()
+        assert detector.detect("I am an experienced senior software engineer") == "en"
+
+    def test_detect_spanish(self):
+        detector = PortugueseSpanishEnglishDetector()
+        assert (
+            detector.detect("Soy un desarrollador de software con mucha experiencia")
+            == "es"
+        )
+
+    def test_detect_portuguese(self):
+        detector = PortugueseSpanishEnglishDetector()
+        assert (
+            detector.detect(
+                "Sou desenvolvedor de software com bastante experiência em tecnologia"
+            )
+            == "pt"
+        )
+
+    def test_detect_empty(self):
+        detector = PortugueseSpanishEnglishDetector()
+        assert detector.detect("") == "en"
+
+    def test_supported_languages(self):
+        detector = PortugueseSpanishEnglishDetector()
+        assert detector.supported_languages == ["en", "es", "pt"]
 
 
 class TestSpanishEnglishDetector:

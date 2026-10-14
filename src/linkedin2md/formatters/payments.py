@@ -16,12 +16,16 @@ class ReceiptsFormatter(BaseFormatter):
         return "receipts"
 
     def _format_content(self, data: list, lang: str) -> str:
-        lines = ["# Payment Receipts", ""]
-        lines.append("| Date | Description | Amount | Currency |")
+        lines = [f"# {self._t('Payment Receipts', lang)}", ""]
+        lines.append(
+            self._table_header(["Date", "Description", "Amount", "Currency"], lang)
+        )
         lines.append("|------|-------------|--------|----------|")
 
         for receipt in data:
-            date = self._escape_table_cell(receipt.get("date", ""))
+            date = self._escape_table_cell(
+                self._localize_date(receipt.get("date", ""), lang)
+            )
             desc = self._escape_table_cell(receipt.get("description", ""))
             amount = self._escape_table_cell(receipt.get("amount", ""))
             currency = self._escape_table_cell(receipt.get("currency", ""))

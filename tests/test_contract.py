@@ -120,7 +120,7 @@ def test_contract_declares_complete_unique_output_surface() -> None:
 
     assert CONVERSION_CONTRACT.format_version == 1
     assert CONVERSION_CONTRACT.default_language == "en"
-    assert CONVERSION_CONTRACT.supported_languages == ("en", "es")
+    assert CONVERSION_CONTRACT.supported_languages == ("en", "es", "pt")
     assert len(output_files) == 65
     assert len(set(output_files)) == len(output_files)
     assert all(name.endswith(".md") for name in output_files)
